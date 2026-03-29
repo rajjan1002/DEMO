@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <title>E-Waste Global Map</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial;
+        background: #f4f4f4;
+        text-align: center;
+    }
+
+    .dashboard {
+        background: #2f4f88;
+        color: white;
+        padding: 30px; 
+        display: flex;
+        justify-content: space-around;
+        flex-wrap: wrap;
+    }
+
+    .box {
+        background: rgba(255,255,255,0.1);
+        padding: 20px;
+        border-radius: 15px;
+        width: 250px;
+        margin: 10px;
+    }
+
+    .filters {
+        margin: 15px;
+    }
+
+    .btn {
+        padding: 10px 18px;
+        margin: 5px;
+        border: none;
+        border-radius: 20px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .btn.high { background: red; }
+    .btn.dump { background: black; }
+    .btn.recycle { background: orange; color:black; }
+    .btn.show { background: gray; }
+
+    #map {
+        height: 500px;
+        width: 90%;
+        margin: auto;
+        border-radius: 10px;
+    }
+</style>
+```
+
+</head>
+
+<body>
+
+<div class="dashboard">
+    <div class="box"><h3>Total E-Waste</h3><h2>62</h2><p>Million tonnes</p></div>
+    <div class="box"><h3>Top Country</h3><h2>China</h2><p>Largest generator</p></div>
+    <div class="box"><h3>Recycling Rate</h3><h2>20%</h2><p>Proper recycling</p></div>
+</div>
+
+<div class="filters">
+    <button class="btn high" onclick="filterMarkers('high')">High Generation</button>
+    <button class="btn dump" onclick="filterMarkers('dump')">Dumping Zones</button>
+    <button class="btn recycle" onclick="filterMarkers('recycle')">Recycling Hubs</button>
+    <button class="btn show" onclick="showAll()">Show All</button>
+</div>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+var map = L.map('map').setView([20, 0], 2);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+var markers = [];
+
+// 🔥 IMPROVED POPUP
+function getPopup(country, waste, recycle, note, type) {
+    return `
+    <div style="width:230px;">
+        <b style="font-size:16px;">${country}</b><br><br>
+
+        📊 <b>E-Waste:</b> ${waste} Mt<br>
+        ♻️ <b>Recycling Rate:</b> ${recycle}%<br><br>
+
+        <p style="font-size:13px; line-height:1.4;">
+        ${note}
+        </p>
+
+        <hr>
+
+        <p style="font-size:13px; color:#2f4f88;">
+        🌍 <b>AI Insight:</b><br>
+        ${getAIInsight(type, country)}
+        </p>
+    </div>`;
+}
+function getAIInsight(type, country) {
+
+    if (type === "high") {
+        return `${country} is classified as a high e-waste generator due to strong consumer demand, rapid device upgrades, and large population or industrial activity. This leads to significant electronic waste production, making it a key contributor to global e-waste challenges.`;
+    }
+
+    if (type === "dump") {
+        return `${country} is identified as a dumping zone due to weak regulations, import of second-hand electronics, and lack of formal recycling infrastructure. This results in unsafe processing methods, contributing to environmental and health issues globally.`;
+    }
+
+    if (type === "recycle") {
+        return `${country} functions as a recycling hub due to the presence of organized recycling systems, government policies, or large informal sectors. It plays a crucial role in recovering valuable materials and reducing global e-waste impact.`;
+    }
+
+    return "";
+}
+
+function addMarker(lat, lng, color, type, popup) {
+    var marker = L.circleMarker([lat, lng], {color: color})
+        .bindPopup(popup);
+
+    marker.type = type;
+    marker.addTo(map);
+    markers.push(marker);
+}
+
+// 🔴 HIGH GENERATION
+addMarker(37,-95,'red','high',getPopup("USA",6.9,15,"The United States is one of the largest producers of e-waste due to high consumer electronics usage and rapid device replacement cycles. Although formal recycling systems exist, a significant portion still ends up in landfills or is exported. Improving circular economy practices remains a key global challenge." ,"high"));
+addMarker(20,78,'red','high',getPopup("India",3.2,20,"India is experiencing rapid growth in electronic consumption, leading to a sharp rise in e-waste generation. While formal recycling systems are expanding, much of the processing still happens in the informal sector. This creates environmental and health concerns in the global e-waste ecosystem.","high","high"));
+addMarker(35,103,'red','high',getPopup("China",10.1,30,"China is the largest generator of e-waste globally due to its massive population and manufacturing base. The country has improved regulations and recycling infrastructure in recent years. However, managing such large volumes continues to be a global environmental challenge.","high"));
+addMarker(51,10,'red','high',getPopup("Germany",1.6,45,"Germany is a global leader in e-waste recycling with strict environmental laws and efficient collection systems. The country achieves high recycling rates through advanced technology and public awareness. Despite this, high consumption still contributes significantly to global e-waste volumes.","high"));
+addMarker(46,2,'red','high',getPopup("France",1.4,40,"France has strong e-waste regulations and a structured recycling system supported by extended producer responsibility policies. The country promotes sustainable consumption and repair culture. However, rising electronics usage continues to increase total waste generation.","high"));
+addMarker(55,-3,'red','high',getPopup("UK",1.6,42,"The United Kingdom generates significant e-waste due to high urbanization and technology adoption. It has established recycling frameworks and awareness programs. Still, illegal exports and improper disposal remain concerns in the global context.","high"));
+addMarker(36,138,'red','high',getPopup("Japan",2.5,50,"Japan is known for its highly efficient e-waste management systems and advanced recycling technologies. The country emphasizes resource recovery and circular economy practices. High device turnover, however, keeps total e-waste levels substantial.","high"));
+addMarker(-25,133,'red','high',getPopup("Australia",0.6,35,"Australia generates high e-waste per capita due to widespread use of electronics. National recycling schemes have improved waste handling and awareness. Despite this, geographic challenges make efficient collection and recycling difficult.","high"));
+addMarker(-14,-51,'red','high',getPopup("Brazil",2.1,18,"Brazil is one of the largest e-waste producers in Latin America with growing electronic consumption. Formal recycling systems are still developing and unevenly distributed. Informal recycling and improper disposal remain major global concerns.","high"));
+addMarker(56,-106,'red','high',getPopup("Canada",0.7,30,"Canada produces considerable e-waste driven by high living standards and technology use. The country has provincial recycling programs and regulations. However, improving collection efficiency and reducing exports are ongoing challenges.","high"));
+
+// ⚫ DUMPING ZONES
+addMarker(5.5,-0.2,'black','dump',getPopup("Ghana",0.8,5,"Ghana hosts one of the world's largest informal e-waste dumping sites at Agbogbloshie. Large volumes of imported waste are processed under unsafe conditions. This creates severe environmental pollution and health risks in the global e-waste chain.","dump"));
+addMarker(9,8,'black','dump',getPopup("Nigeria",0.6,10,"Nigeria receives large amounts of used and discarded electronics from developed countries. Informal recycling practices dominate due to lack of infrastructure. This contributes to environmental degradation and global e-waste imbalance.","dump"));
+addMarker(30,31,'black','dump',getPopup("Egypt",0.5,12,"Egypt faces growing e-waste challenges with limited formal recycling systems. Informal disposal methods often lead to pollution and unsafe working conditions. Strengthening regulations is essential for global sustainability.","dump"));
+addMarker(-1,37,'black','dump',getPopup("Kenya",0.4,8,"Kenya struggles with increasing e-waste due to rising technology adoption. Lack of proper recycling facilities leads to open dumping and burning. This impacts both local communities and global environmental health.","dump"));
+addMarker(-6,35,'black','dump',getPopup("Tanzania",0.3,6,"Tanzania has limited infrastructure for managing e-waste effectively. Informal handling and disposal are common practices. This contributes to pollution and highlights the need for global cooperation in waste management.","dump"));
+addMarker(23,90,'black','dump',getPopup("Bangladesh",0.9,15,"Bangladesh faces significant e-waste issues, especially from ship-breaking and electronics imports. Informal recycling exposes workers to hazardous materials. Addressing these issues is critical for global environmental protection.","dump"));
+addMarker(33,73,'black','dump',getPopup("Pakistan",0.7,10,"Pakistan's e-waste management system is largely informal with limited regulation enforcement. Improper recycling methods cause environmental harm. Global collaboration is needed to improve safe disposal practices.","dump"));
+addMarker(-2,23,'black','dump',getPopup("Congo",0.2,5,"The Congo faces challenges with unregulated e-waste disposal and lack of infrastructure. Informal handling leads to pollution and health risks. This reflects broader global inequalities in waste distribution.","dump"));
+addMarker(15,30,'black','dump',getPopup("Sudan",0.3,7,"Sudan has minimal e-waste management systems, leading to unsafe disposal practices. Growing electronics usage is increasing waste levels. International support is needed to address these challenges.","dump"));
+addMarker(7,21,'black','dump',getPopup("Cameroon",0.2,6,"Cameroon deals with rising e-waste without sufficient recycling infrastructure. Informal disposal methods dominate the system. This contributes to environmental damage in the global context.","dump"));
+
+// 🟡 RECYCLING HUBS
+addMarker(28.6,77.2,'orange','recycle',getPopup("Delhi",0.5,25,"Delhi is a major e-waste recycling hub in India with both formal and informal sectors. Large volumes of waste are processed daily. However, improving safety and efficiency remains important for global standards.","recycle"));
+addMarker(23,113,'orange','recycle',getPopup("Guiyu",1.2,35,"Guiyu in China is one of the world's largest e-waste recycling centers. It has transitioned from informal processing to more regulated systems. This transformation is significant in the global e-waste landscape.","recycle"));
+addMarker(19,72.8,'orange','recycle',getPopup("Mumbai",0.4,22,"Mumbai plays a key role in India's urban e-waste recycling network. Informal workers handle a large portion of processing. Enhancing formal systems is crucial for sustainable global practices.","recycle"));
+addMarker(13,80.2,'orange','recycle',getPopup("Chennai",0.3,20,"Chennai has a growing e-waste recycling ecosystem with both formal and informal players. Awareness and infrastructure are improving gradually. It contributes to regional and global waste management efforts.","recycle"));
+addMarker(22.5,88.3,'orange','recycle',getPopup("Kolkata",0.3,18,"Kolkata's e-waste recycling is largely driven by informal sectors. Efforts are being made to integrate safer and regulated processes. This transition is important in the global context.","recycle"));
+addMarker(31,121,'orange','recycle',getPopup("Shanghai",0.6,30,"Shanghai has advanced industrial recycling facilities supported by strong regulations. The city plays a significant role in China's e-waste management. It reflects progress in global recycling systems.","recycle"));
+addMarker(39,116,'orange','recycle',getPopup("Beijing",0.5,28,"Beijing focuses on regulated e-waste recycling through government-controlled systems. Public awareness and infrastructure are continuously improving. It contributes to China's global leadership in recycling.","recycle"));
+addMarker(1.3,103.8,'orange','recycle',getPopup("Singapore",0.2,60,"Singapore has one of the most advanced e-waste recycling systems globally. Strong policies and technology-driven solutions ensure efficient waste management. It serves as a model for sustainable global practices.","recycle"));
+addMarker(52,13,'orange','recycle',getPopup("Berlin",0.3,55,"Berlin is known for its efficient and well-regulated e-waste recycling infrastructure. High public awareness supports proper disposal and recovery. It reflects strong performance in the global recycling ecosystem.","recycle"));
+addMarker(34,-118,'orange','recycle',getPopup("Los Angeles",0.5,50,"Los Angeles has modern recycling facilities and strict regulations for e-waste management. Public participation and technology support efficient processing. It plays an important role in global recycling efforts.","recycle"));
+
+// FILTERS
+function filterMarkers(type){
+    markers.forEach(m=>{
+        if(m.type===type){map.addLayer(m);} 
+        else{map.removeLayer(m);}
+    });
+}
+function showAll(){markers.forEach(m=>map.addLayer(m));}
+</script>
+
+</body>
+</html>
